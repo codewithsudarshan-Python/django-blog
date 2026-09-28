@@ -1,0 +1,161 @@
+{% load django_bootstrap5 %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }}</title>
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background: #121212;
+            color: #f0f0f0;
+        }
+        .navbar { background: #1a1a1a !important; border-bottom: 1px solid #2a2a2a; }
+
+        .back-link {
+            color: #7cc4fa;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+        .back-link:hover { color: #fff; }
+
+        .post-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+        .post-card video, .post-card img {
+            width: 100%;
+            max-height: 480px;
+            object-fit: cover;
+            display: block;
+        }
+        .category-badge {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            background: linear-gradient(90deg, #4da3ff, #3ddc97);
+            color: #042c53;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            z-index: 2;
+        }
+        .post-card .card-body { padding: 24px; }
+        .post-card h1 { color: #fff; font-weight: 700; font-size: 1.7rem; }
+        .post-card p.content { color: #d5d5da; line-height: 1.6; }
+        .post-card small { color: #8a8a95; }
+
+        .comments-section {
+            border-top: 1px solid #2a2a2a;
+            padding-top: 24px;
+            margin-top: 32px;
+        }
+        .comments-section h3 { color: #e8e8ec; font-size: 1.2rem; }
+        .comment-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+        }
+        .comment-card strong { color: #7cc4fa; }
+        .comment-card p { color: #d5d5da; }
+        textarea.form-control {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            color: #f0f0f0;
+        }
+        textarea.form-control:focus {
+            background: #1a1a1a;
+            color: #f0f0f0;
+            border-color: #4da3ff;
+            box-shadow: none;
+        }
+
+        footer {
+            margin-top: 60px;
+            padding: 24px 0;
+            border-top: 1px solid #2a2a2a;
+            text-align: center;
+            color: #6a6a75;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">My Django Blog</a>
+        </div>
+    </nav>
+
+    <div class="container mt-5" style="max-width: 800px;">
+        <a href="{% url 'home' %}" class="back-link"><i class="bi bi-arrow-left"></i> Back to Home</a>
+
+        <div class="post-card">
+            <span class="category-badge">{{ post.get_category_display }}</span>
+            {% if post.video %}
+                <video controls>
+                    <source src="{{ post.video.url }}">
+                    Your browser does not support video playback.
+                </video>
+            {% elif post.image %}
+                <img src="{{ post.image.url }}" alt="{{ post.title }}">
+            {% endif %}
+            <div class="card-body">
+                <h1>{{ post.title }}</h1>
+                <p class="content">{{ post.content }}</p>
+                <small class="d-block mb-3">Posted on {{ post.created_at }} &middot; {{ post.views }} view{{ post.views|pluralize }}</small>
+
+                {% if user.is_authenticated %}
+                    <div>
+                        <a href="{% url 'edit_post' post.id %}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{% url 'delete_post' post.id %}" class="btn btn-danger btn-sm">Delete</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="comments-section">
+            <h3 class="mb-3"><i class="bi bi-chat-dots"></i> Comments ({{ comments|length }})</h3>
+
+            {% if user.is_authenticated %}
+                <form method="post" class="mb-4">
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        <textarea name="text" class="form-control" rows="3" placeholder="Write a comment..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">Post Comment</button>
+                </form>
+            {% else %}
+                <p><a href="{% url 'login' %}" style="color:#7cc4fa;">Login</a> to post a comment.</p>
+            {% endif %}
+
+            {% for comment in comments %}
+                <div class="comment-card mb-2 p-3">
+                    <strong>{{ comment.user.username }}</strong>
+                    <p class="mb-1 mt-1">{{ comment.text }}</p>
+                    <small>{{ comment.created_at }}</small>
+                </div>
+            {% empty %}
+                <p style="color:#6a6a75;">No comments yet. Be the first to comment!</p>
+            {% endfor %}
+        </div>
+
+        <footer>
+            &copy; 2026 My Django Blog. Made with Django.
+        </footer>
+    </div>
+
+    {% bootstrap_javascript %}
+</body>
+</html>

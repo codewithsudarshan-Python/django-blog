@@ -1,0 +1,354 @@
+{% load django_bootstrap5 %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Django Blog</title>
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #faf3ea;
+            --surface: #ffffff;
+            --accent-bg: #f0dfd0;
+            --text: #2b2420;
+            --text-muted: #7a6f65;
+            --border: #e8ddd0;
+            --dark-btn: #2b2420;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            padding-bottom: 0;
+        }
+        h1, h2, h3, .brand { font-family: 'Playfair Display', serif; }
+
+        .topbar {
+            background: var(--bg);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .topbar .brand {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .topbar .brand .logo-circle {
+            width: 30px; height: 30px;
+            background: var(--dark-btn);
+            color: #fff;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem;
+        }
+        .topbar a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-left: 18px;
+        }
+        .topbar a:hover { color: var(--text); }
+        .btn-join {
+            background: var(--dark-btn);
+            color: #fff !important;
+            padding: 8px 18px;
+            border-radius: 24px;
+            font-size: 0.85rem;
+        }
+
+        .hero {
+            background: var(--accent-bg);
+            border-radius: 24px;
+            margin: 20px;
+            padding: 50px 40px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 30px;
+        }
+        .hero-media {
+            flex: 1 1 320px;
+            border-radius: 18px;
+            overflow: hidden;
+        }
+        .hero-media video, .hero-media img {
+            width: 100%;
+            max-height: 340px;
+            object-fit: cover;
+            display: block;
+        }
+        .hero-text { flex: 1 1 320px; }
+        .hero-text h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 16px;
+        }
+        .hero-text p {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+        .hero-text a.underline-link {
+            color: var(--text);
+            text-decoration: underline;
+        }
+        .btn-dark-pill {
+            background: var(--dark-btn);
+            color: #fff;
+            border-radius: 24px;
+            padding: 10px 24px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 500;
+        }
+
+        .intro {
+            text-align: center;
+            max-width: 720px;
+            margin: 60px auto 50px;
+            padding: 0 20px;
+        }
+        .intro h2 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .intro p { color: var(--text-muted); }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 0 20px 20px;
+        }
+        .section-heading h2 { font-size: 1.5rem; font-weight: 700; margin: 0; }
+        .section-heading a { color: var(--text); font-size: 0.9rem; text-decoration: none; }
+
+        .post-grid { padding: 0 20px 40px; }
+        .post-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            height: 100%;
+            transition: transform 0.2s ease;
+        }
+        .post-card:hover { transform: translateY(-4px); }
+        .post-media { position: relative; }
+        .post-media video, .post-media img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+        .category-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(255,255,255,0.9);
+            color: var(--text);
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            z-index: 2;
+        }
+        .post-body { padding: 16px; }
+        .post-body h5 { font-family: 'Playfair Display', serif; font-weight: 700; margin-bottom: 6px; }
+        .post-body p.date { color: var(--text-muted); font-size: 0.8rem; margin-bottom: 12px; }
+
+        .newsletter {
+            background: var(--accent-bg);
+            border-radius: 24px;
+            margin: 20px;
+            padding: 50px 20px;
+            text-align: center;
+        }
+        .newsletter h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 10px; }
+        .newsletter p { color: var(--text-muted); margin-bottom: 24px; }
+        .newsletter-form {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .newsletter-form input {
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            padding: 10px 20px;
+            width: 260px;
+            max-width: 80%;
+        }
+
+        footer {
+            padding: 40px 20px 20px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        footer .footer-cols { display: flex; flex-wrap: wrap; gap: 30px; justify-content: center; margin-bottom: 20px; }
+        footer h6 { font-weight: 600; color: var(--text); margin-bottom: 10px; }
+        footer a { color: var(--text-muted); text-decoration: none; display: block; margin-bottom: 6px; font-size: 0.85rem; }
+        footer .copyright { text-align: center; border-top: 1px solid var(--border); padding-top: 16px; }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <span class="brand"><span class="logo-circle">B</span> My Django Blog</span>
+        <div>
+            <a href="{% url 'stories_list' %}">Stories</a>
+            <a href="{% url 'photo_gallery' %}">Photos</a>
+            <a href="{% url 'all_comments' %}">Comments</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'analytics_dashboard' %}">Analytics</a>
+                <a href="{% url 'logout' %}">Logout</a>
+                <a href="{% url 'add_post' %}" class="btn-join">Add Post</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'signup' %}" class="btn-join">Join Now</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="hero">
+        <div class="hero-media">
+            {% if featured.video %}
+                <video src="{{ featured.video.url }}" controls></video>
+            {% elif featured.image %}
+                <img src="{{ featured.image.url }}" alt="{{ featured.title }}">
+            {% endif %}
+        </div>
+        <div class="hero-text">
+            <h1>Journey Through Life's Spectrum</h1>
+            <p>
+                Welcome to my blog — a space for
+                <a href="{% url 'stories_list' %}" class="underline-link">stories</a>,
+                <a href="{% url 'photo_gallery' %}" class="underline-link">photos</a>
+                and <a href="{% url 'videos_list' %}" class="underline-link">videos</a>
+                I share along the way.
+            </p>
+            <a href="{% url 'blog_list' %}" class="btn-dark-pill">Explore Posts</a>
+        </div>
+    </div>
+
+    <div class="intro">
+        <h2>A space for exploring ideas, sharing moments, and discovering new perspectives.</h2>
+        <p>From travel and tech to everyday life and food, this blog is where I share the moments and stories worth remembering.</p>
+    </div>
+
+    <div class="section-heading">
+        <h2>Featured</h2>
+    </div>
+
+    {% if featured %}
+        <div class="post-grid">
+            <div class="row g-4">
+                <div class="col-md-12">
+                    <div class="post-card">
+                        <div class="row g-0">
+                            <div class="col-md-6 post-media">
+                                <span class="category-badge">{{ featured.get_category_display }}</span>
+                                {% if featured.video %}
+                                    <video src="{{ featured.video.url }}" controls style="height:100%;"></video>
+                                {% elif featured.image %}
+                                    <img src="{{ featured.image.url }}" style="height:100%;">
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 post-body d-flex flex-column justify-content-center p-4">
+                                <h3>{{ featured.title }}</h3>
+                                <p class="date">{{ featured.created_at }}</p>
+                                <p>{{ featured.content|truncatewords:30 }}</p>
+                                <a href="{% url 'post_detail' featured.id %}" class="btn-dark-pill align-self-start">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="section-heading">
+        <h2>Latest Posts</h2>
+        <a href="{% url 'blog_list' %}">View all &rarr;</a>
+    </div>
+
+    <div class="post-grid">
+        {% if posts %}
+            <div class="row g-4">
+                {% for post in posts %}
+                    <div class="col-md-4 col-sm-6">
+                        <div class="post-card">
+                            <div class="post-media">
+                                <span class="category-badge">{{ post.get_category_display }}</span>
+                                {% if post.video %}
+                                    <video src="{{ post.video.url }}" controls></video>
+                                {% elif post.image %}
+                                    <img src="{{ post.image.url }}" alt="{{ post.title }}">
+                                {% endif %}
+                            </div>
+                            <div class="post-body">
+                                <h5>{{ post.title }}</h5>
+                                <p class="date">{{ post.created_at }}</p>
+                                <a href="{% url 'post_detail' post.id %}" class="btn-dark-pill">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>No posts yet. Check back soon!</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="newsletter">
+        <h2>Stay inspired.</h2>
+        <p>Subscribe to get notified about new stories, photos, and videos.</p>
+        <form class="newsletter-form" method="post" action="{% url 'newsletter_signup' %}">
+            {% csrf_token %}
+            <input type="email" name="email" placeholder="Your email" required>
+            <button type="submit" class="btn-dark-pill" style="border:none;">Subscribe</button>
+        </form>
+    </div>
+
+    <footer>
+        <div class="footer-cols">
+            <div>
+                <h6>Explore</h6>
+                <a href="{% url 'stories_list' %}">Stories</a>
+                <a href="{% url 'photo_gallery' %}">Photos</a>
+                <a href="{% url 'videos_list' %}">Videos</a>
+            </div>
+            <div>
+                <h6>Account</h6>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'user_profile' %}">Profile</a>
+                    <a href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Login</a>
+                    <a href="{% url 'signup' %}">Sign Up</a>
+                {% endif %}
+            </div>
+            <div>
+                <h6>More</h6>
+                <a href="{% url 'all_comments' %}">Comments</a>
+                <a href="{% url 'analytics_dashboard' %}">Analytics</a>
+            </div>
+        </div>
+        <div class="copyright">&copy; 2026 My Django Blog. All rights reserved.</div>
+    </footer>
+
+    {% bootstrap_javascript %}
+</body>
+</html>

@@ -1,0 +1,155 @@
+{% load django_bootstrap5 %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - My Django Blog</title>
+    {% bootstrap_css %}
+    <style>
+        .category-pill {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            color: #333;
+            text-decoration: none;
+            margin: 0 6px 10px 0;
+            font-size: 0.9rem;
+        }
+        .category-pill.active {
+            background: #0d6efd;
+            color: #fff;
+            border-color: #0d6efd;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">My Django Blog</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'blog_list' %}">Blog</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'photo_gallery' %}">Photos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'all_comments' %}">Comments</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'add_post' %}">Add Post</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'analytics_dashboard' %}">Analytics</a>
+                        </li>
+                        <li class="nav-item">
+                            <span class="nav-link">Hello, {{ user.username }}!</span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">{{ page_heading }}</h1>
+
+        <div class="mb-4" style="max-width: 400px; margin: 0 auto;">
+            <div class="input-group">
+                <input type="text" id="liveSearch" class="form-control" placeholder="Search posts by title..." autocomplete="off">
+                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+            </div>
+        </div>
+
+        <div class="text-center mb-4">
+            <a href="{% url 'blog_list' %}" class="category-pill {% if not selected_category %}active{% endif %}">All</a>
+            {% for value, label in categories %}
+                <a href="?category={{ value }}" class="category-pill {% if selected_category == value %}active{% endif %}">{{ label }}</a>
+            {% endfor %}
+        </div>
+
+        {% if posts %}
+            <div class="row g-4" id="postsGrid">
+                {% for post in posts %}
+                    <div class="col-md-4 post-item {% if forloop.counter > 6 %}d-none extra-post{% endif %}" data-title="{{ post.title|lower }}" data-category="{{ post.get_category_display|lower }}">
+                        <div class="card h-100">
+                            {% if post.video %}
+                                <video src="{{ post.video.url }}" controls style="height:180px; object-fit:cover;"></video>
+                            {% elif post.image %}
+                                <img src="{{ post.image.url }}" class="card-img-top" style="height:180px; object-fit:cover;">
+                            {% endif %}
+                            <div class="card-body">
+                                <span class="badge bg-secondary mb-2">{{ post.get_category_display }}</span>
+                                <h5 class="card-title">{{ post.title }}</h5>
+                                <p class="text-muted" style="font-size:0.85rem;">{{ post.created_at }}</p>
+                                <a href="{% url 'post_detail' post.id %}" class="btn btn-sm btn-primary">Read More</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if posts|length > 6 %}
+                <div class="text-center mt-4">
+                    <button id="loadMoreBtn" class="btn btn-outline-primary">Load More</button>
+                </div>
+            {% endif %}
+        {% else %}
+            <p class="text-center text-muted">
+                {% if search_query %}No posts found matching "{{ search_query }}".{% else %}No posts found in this category.{% endif %}
+            </p>
+        {% endif %}
+
+    </div>
+
+    {% bootstrap_javascript %}
+    <script>
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', function() {
+                document.querySelectorAll('.extra-post').forEach(el => el.classList.remove('d-none'));
+                loadMoreBtn.style.display = 'none';
+            });
+        }
+
+        const liveSearch = document.getElementById('liveSearch');
+        if (liveSearch) {
+            liveSearch.addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                const items = document.querySelectorAll('.post-item');
+                let anyVisible = false;
+                items.forEach(item => {
+                    const title = item.getAttribute('data-title') || '';
+                    const category = item.getAttribute('data-category') || '';
+                    if (query === '' || title.includes(query) || category.includes(query)) {
+                        item.classList.remove('d-none');
+                        anyVisible = true;
+                    } else {
+                        item.classList.add('d-none');
+                    }
+                });
+                if (loadMoreBtn) {
+                    loadMoreBtn.style.display = query === '' ? '' : 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

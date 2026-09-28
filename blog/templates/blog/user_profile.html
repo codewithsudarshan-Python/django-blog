@@ -1,0 +1,105 @@
+{% load django_bootstrap5 %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - My Django Blog</title>
+    {% bootstrap_css %}
+    <style>
+        :root {
+            --bg: #faf3ea;
+            --surface: #ffffff;
+            --accent-bg: #f0dfd0;
+            --text: #2b2420;
+            --text-muted: #7a6f65;
+            --border: #e8ddd0;
+            --dark-btn: #2b2420;
+        }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
+        .topbar {
+            background: var(--bg);
+            padding: 18px 20px;
+        }
+        .topbar a { color: var(--text-muted); text-decoration: none; }
+
+        .profile-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            margin: 30px auto;
+        }
+        .avatar-circle {
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            background: var(--dark-btn);
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .profile-field { margin-bottom: 12px; }
+        .profile-field .label { color: var(--text-muted); font-size: 0.8rem; }
+        .profile-field .value { font-weight: 600; }
+
+        .comment-item {
+            border-bottom: 1px solid var(--border);
+            padding: 12px 0;
+        }
+        .comment-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+
+    <div class="topbar">
+        <a href="{% url 'home' %}"><i class="bi bi-arrow-left"></i> Back to Home</a>
+    </div>
+
+    <div class="profile-card">
+        <div class="avatar-circle">{{ user.username|first|upper }}</div>
+        <h3>{{ user.username }}</h3>
+        <p style="color: var(--text-muted);">{{ user.email }}</p>
+
+        <div class="row mt-3">
+            <div class="col-6 profile-field">
+                <div class="label">Gender</div>
+                <div class="value">{{ profile.get_gender_display|default:"Not set" }}</div>
+            </div>
+            <div class="col-6 profile-field">
+                <div class="label">Age</div>
+                <div class="value">{{ profile.age|default:"Not set" }}</div>
+            </div>
+            <div class="col-6 profile-field">
+                <div class="label">Place</div>
+                <div class="value">{{ profile.place|default:"Not set" }}</div>
+            </div>
+            <div class="col-6 profile-field">
+                <div class="label">Degree</div>
+                <div class="value">{{ profile.degree|default:"Not set" }}</div>
+            </div>
+            <div class="col-12 profile-field">
+                <div class="label">Course</div>
+                <div class="value">{{ profile.course|default:"Not set" }}</div>
+            </div>
+        </div>
+
+        <hr style="border-color: var(--border);">
+
+        <h5 class="mb-3">My Comments ({{ user_comments|length }})</h5>
+        {% for comment in user_comments %}
+            <div class="comment-item">
+                <strong>{{ comment.post.title }}</strong>
+                <p class="mb-1">{{ comment.text }}</p>
+                <small style="color: var(--text-muted);">{{ comment.created_at }}</small>
+            </div>
+        {% empty %}
+            <p style="color: var(--text-muted);">You haven't commented on any posts yet.</p>
+        {% endfor %}
+    </div>
+
+    {% bootstrap_javascript %}
+</body>
+</html>
